@@ -91,8 +91,8 @@ public class PersistenceConfig {
                 Id idAnnotation = field.getAnnotation(Id.class);
                 if (idAnnotation != null) {
                     boolean generate = idAnnotation.generated();
-                    descriptionBuilder.idField(fieldName)
-                            .generateId(generate);
+                    boolean fk = idAnnotation.fk();
+                    descriptionBuilder.idField(fieldName, generate, fk);
                 }
             }
             EntityDescription entityDescription = descriptionBuilder.build();

@@ -1,6 +1,7 @@
 package com.daimler.heybeach.backend.dao;
 
 import com.daimler.heybeach.backend.exception.DaoException;
+import com.daimler.heybeach.data.core.Condition;
 import com.daimler.heybeach.data.core.QueryExecutor;
 import com.daimler.heybeach.data.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,14 @@ public abstract class GenericDao<K, V> {
     public GenericDao() {
         this.entityClass = (Class<V>) ((ParameterizedType) getClass()
                 .getGenericSuperclass()).getActualTypeArguments()[1];
+    }
+
+    public List<V> findAllWith(Condition... conditions) throws DaoException {
+        try {
+            return queryExecutor.findAll(entityClass, conditions);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
     }
 
     public List<V> findAll() throws DaoException {

@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Id {
     boolean generated() default false;
+    boolean fk() default false;
 }

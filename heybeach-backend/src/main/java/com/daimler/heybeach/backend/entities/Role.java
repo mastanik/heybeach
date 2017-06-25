@@ -1,17 +1,14 @@
 package com.daimler.heybeach.backend.entities;
 
 import com.daimler.heybeach.data.types.Entity;
-import com.daimler.heybeach.data.types.Field;
 import com.daimler.heybeach.data.types.Id;
 
-@Entity
-public class Beach {
-
-    @Id(generated = true)
+@Entity(table = "roles")
+public class Role {
+    @Id
     private Long id;
     private String name;
-    @Field
-    private String country;
+    private Integer priority;
 
     public Long getId() {
         return id;
@@ -29,11 +26,11 @@ public class Beach {
         this.name = name;
     }
 
-    public String getCountry() {
-        return country;
+    public Integer getPriority() {
+        return priority;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setPriority(Integer priority) {
+        this.priority = priority;
     }
 }

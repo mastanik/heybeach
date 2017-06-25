@@ -2,6 +2,7 @@ package com.daimler.heybeach.data.core;
 
 import java.lang.reflect.Field;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
@@ -15,6 +16,7 @@ class QueryBuilder {
     public static final String DELETE = "DELETE";
     public static final String FROM = "FROM";
     public static final String WHERE = "WHERE";
+    public static final String AND = "AND";
 
     public static final String EMPTY = " ";
     public static final String EQUAL = " = ";
@@ -47,11 +49,10 @@ class QueryBuilder {
         StringBuilder sb = new StringBuilder(select)
                 .append(EMPTY)
                 .append(WHERE)
-                .append(EMPTY)
-                .append(entityDescription.getIdField().getName())
-                .append(EMPTY)
-                .append(EQUAL)
-                .append(PARAM);
+                .append(EMPTY);
+
+        addWhereById(sb, entityDescription);
+
         return sb.toString();
     }
 
@@ -63,11 +64,11 @@ class QueryBuilder {
                 .append(entityDescription.getTable())
                 .append(EMPTY)
                 .append(OPEN_PARENTHESIS);
+
         StringJoiner sj = new StringJoiner(COMMA_WITH_SPACE);
+        Map<String, EntityDescription.IdField> idFields = entityDescription.getIdFields();
+        mapping.keySet().stream().filter(key -> !idFields.containsKey(key) || idFields.get(key).isGenerate() || idFields.get(key).isFk()).forEach(sj::add);
 
-        boolean generateId = entityDescription.getIdField().isGenerate();
-
-        mapping.keySet().stream().filter(key -> !entityDescription.getIdField().getName().equals(key) || generateId).forEach(sj::add);
 
         sb.append(sj.toString())
                 .append(CLOSE_PARENTHESIS)
@@ -75,7 +76,7 @@ class QueryBuilder {
                 .append(VALUES)
                 .append(OPEN_PARENTHESIS);
         StringJoiner sj2 = new StringJoiner(COMMA_WITH_SPACE);
-        mapping.keySet().stream().filter(key -> !entityDescription.getIdField().getName().equals(key) || generateId).forEach(key -> sj2.add(PARAM));
+        mapping.keySet().stream().filter(key -> !idFields.containsKey(key) || idFields.get(key).isGenerate() || idFields.get(key).isFk()).forEach(key -> sj2.add(PARAM));
         sb.append(sj2.toString())
                 .append(CLOSE_PARENTHESIS);
         return sb.toString();
@@ -95,7 +96,7 @@ class QueryBuilder {
         Iterator<Map.Entry<String, Field>> it = mapping.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Field> entry = it.next();
-            if (entry.getKey().equals(entityDescription.getIdField().getName())) {
+            if (entityDescription.getIdFields().containsKey(entry.getKey())) {
                 continue;
             }
             sb.append(entry.getKey())
@@ -108,10 +109,10 @@ class QueryBuilder {
 
         sb.append(EMPTY)
                 .append(WHERE)
-                .append(EMPTY)
-                .append(entityDescription.getIdField().getName())
-                .append(EQUAL)
-                .append(PARAM);
+                .append(EMPTY);
+
+        addWhereById(sb, entityDescription);
+
         return sb.toString();
     }
 
@@ -124,10 +125,55 @@ class QueryBuilder {
                 .append(entityDescription.getTable())
                 .append(EMPTY)
                 .append(WHERE)
-                .append(EMPTY)
-                .append(entityDescription.getIdField().getName())
-                .append(EQUAL)
-                .append(PARAM);
+                .append(EMPTY);
+
+        addWhereById(sb, entityDescription);
+
+        return sb.toString();
+    }
+
+    private void addWhereById(StringBuilder sb, EntityDescription entityDescription) {
+        List<EntityDescription.IdField> idFields = entityDescription.getPk();
+        int index = 1;
+        int size = idFields.size();
+        for (EntityDescription.IdField idField : idFields) {
+            sb.append(idField.getName())
+                    .append(EMPTY)
+                    .append(EQUAL)
+                    .append(PARAM);
+            if (index < size) {
+                sb.append(EMPTY)
+                        .append(AND)
+                        .append(EMPTY);
+            }
+            index++;
+        }
+    }
+
+    String addConditions(String sql, Condition... conditions) {
+        if (conditions == null) {
+            return sql;
+        }
+        StringBuilder sb = new StringBuilder(sql);
+        sb.append(EMPTY)
+                .append(WHERE);
+
+        int length = conditions.length;
+        int index = 1;
+        for (Condition condition : conditions) {
+            if (index > 1) {
+                sb.append(AND);
+            }
+            sb.append(EMPTY)
+                    .append(condition.getFieldName())
+                    .append(EMPTY)
+                    .append(condition.getComparator())
+                    .append(EMPTY)
+                    .append(PARAM);
+            if (index < length) {
+                sb.append(COMMA_WITH_SPACE);
+            }
+        }
         return sb.toString();
     }
 

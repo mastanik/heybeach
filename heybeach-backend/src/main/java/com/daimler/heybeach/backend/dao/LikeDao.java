@@ -1,8 +1,8 @@
 package com.daimler.heybeach.backend.dao;
 
-import com.daimler.heybeach.backend.entities.Beach;
+import com.daimler.heybeach.backend.entities.Like;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class BeachDao extends GenericDao<Long, Beach> {
+public class LikeDao extends GenericDao<Like, Like> {
 }

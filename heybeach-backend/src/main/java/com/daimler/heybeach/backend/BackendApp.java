@@ -1,5 +1,7 @@
 package com.daimler.heybeach.backend;
 
+import com.daimler.heybeach.backend.storage.FilesystemStorage;
+import com.daimler.heybeach.backend.storage.PictureStorage;
 import com.daimler.heybeach.data.core.PersistenceConfig;
 import com.daimler.heybeach.data.core.QueryExecutor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +19,18 @@ public class BackendApp {
     @Value("${entity.package}")
     private String entityPackage;
 
+    @Value("${picture.storage.fs.path}")
+    private String pictureStorageFsPath;
+
     @Bean
     @ConfigurationProperties("heybeach.datasource")
     public DataSource dataSource() {
         return DataSourceBuilder.create().build();
+    }
+
+    @Bean
+    public PictureStorage pictureStorage() {
+        return new FilesystemStorage(pictureStorageFsPath);
     }
 
     @Bean

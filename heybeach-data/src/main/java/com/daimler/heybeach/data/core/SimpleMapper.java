@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-class SimpleMapper<T> {
+class SimpleMapper<T> implements RowMapper<T> {
 
     private Class<T> clazz;
     private Map<String, Field> fieldMapping;
@@ -19,7 +19,8 @@ class SimpleMapper<T> {
         this.fieldMapping = fieldMapping;
     }
 
-    List<T> map(ResultSet rs) throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    @Override
+    public List<T> map(ResultSet rs) throws SQLException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Constructor<T> ctor = clazz.getConstructor();
         List<T> result = new LinkedList<>();
         while (rs.next()) {

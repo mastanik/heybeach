@@ -1,77 +1,92 @@
 package com.daimler.heybeach.backend.controller;
 
-import com.daimler.heybeach.backend.dao.UserDao;
+import com.daimler.heybeach.backend.dto.Response;
+import com.daimler.heybeach.backend.dto.UserDto;
 import com.daimler.heybeach.backend.entities.User;
-import com.daimler.heybeach.backend.exception.DaoException;
+import com.daimler.heybeach.backend.exception.UserException;
+import com.daimler.heybeach.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
+@Secured(value = "ROLE_AD")
 public class UserController {
 
     @Autowired
-    private UserDao userDao;
+    private UserService userService;
 
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
+    @GetMapping(value = "/users/{id}")
     public ResponseEntity getUser(@PathVariable(value = "id") Long id) {
-        User user = null;
+        User user;
+        Response<User> response;
         try {
-            user = userDao.findById(id);
-        } catch (DaoException e) {
-            e.printStackTrace();
+            user = userService.findById(id);
+            response = new Response<>(true, user);
+
+        } catch (UserException e) {
+            response = new Response<>(false, e.getMessage());
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public ResponseEntity getUsers() {
-        List<User> user = null;
+    @GetMapping(value = "/users")
+    public ResponseEntity getUsers(Principal principal) {
+        List<User> users;
+        Response<List<User>> response;
         try {
-            user = userDao.findAll();
-        } catch (DaoException e) {
-            e.printStackTrace();
+            users = userService.findAll();
+            response = new Response<>(true, users);
+        } catch (UserException e) {
+            response = new Response<>(false, e.getMessage());
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.POST)
-    public ResponseEntity update(@PathVariable(value = "id") Long id, @RequestBody User user) {
+    @PostMapping(value = "/users/{id}")
+    public ResponseEntity update(@PathVariable(value = "id") Long id, @RequestBody UserDto user) {
+        Response response;
         try {
-            user.setId(id);
-            userDao.save(user);
-        } catch (DaoException e) {
-            e.printStackTrace();
+            userService.update(id, user);
+            response = new Response(true);
+        } catch (UserException e) {
+            response = new Response(false, e.getMessage());
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/users", method = RequestMethod.PUT)
+    @PutMapping(value = "/users")
     public ResponseEntity create(@RequestBody User user) {
+        Response response;
         try {
-            userDao.save(user);
-        } catch (DaoException e) {
-            e.printStackTrace();
+            userService.create(user);
+            response = new Response(true);
+        } catch (UserException e) {
+            response = new Response(false, e.getMessage());
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/users/{id}")
     public ResponseEntity remove(@PathVariable(value = "id") Long id) {
-        User user = null;
+        Response response;
         try {
-            user = userDao.findById(id);
-            userDao.remove(user);
-        } catch (DaoException e) {
-            e.printStackTrace();
+            userService.remove(id);
+            response = new Response(true);
+        } catch (UserException e) {
+            response = new Response(false, e.getMessage());
         }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
