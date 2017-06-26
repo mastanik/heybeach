@@ -24,6 +24,6 @@ public class RegistrationController {
     @PutMapping
     public ResponseEntity<Response> register(@RequestBody RegistrationDto dto) throws RegistrationException, ValidationException {
         registrationService.register(dto);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 }

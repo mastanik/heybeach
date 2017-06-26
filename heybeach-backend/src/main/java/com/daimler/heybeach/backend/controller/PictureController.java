@@ -32,28 +32,28 @@ public class PictureController {
     @PostMapping(value = "/upload")
     public ResponseEntity<Response> upload(PictureUploadDto pictureUpload, @RequestParam("picture") MultipartFile file) throws PictureException, ValidationException {
         pictureService.save(pictureUpload, file);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @Secured(value = "ROLE_PSU")
     @DeleteMapping(value = "/{id}/remove")
     public ResponseEntity<Response> remove(@PathVariable(value = "id") Long id) throws PictureException, NotFoundException, ValidationException {
         pictureService.remove(id);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @Secured(value = "ROLE_AD")
     @PostMapping(value = "/{id}/approve")
     public ResponseEntity<Response> approve(@PathVariable(value = "id") Long id, @RequestBody ApproveDto dto) throws NotFoundException, PictureException, ValidationException {
         pictureService.approve(id, dto);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @Secured(value = "ROLE_AD")
     @PostMapping(value = "/{id}/disapprove")
     public ResponseEntity<Response> disapprove(@PathVariable(value = "id") Long id, @RequestBody ApproveDto dto) throws NotFoundException, PictureException, ValidationException {
         pictureService.disapprove(id, dto);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
 
     }
 
@@ -61,6 +61,6 @@ public class PictureController {
     @PostMapping(value = "/{id}/like")
     public ResponseEntity<Response> like(@PathVariable(value = "id") Long id) throws NotFoundException, PictureException, ValidationException {
         pictureService.like(id);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 }

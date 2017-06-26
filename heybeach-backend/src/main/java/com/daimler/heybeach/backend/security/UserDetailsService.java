@@ -8,6 +8,7 @@ import com.daimler.heybeach.backend.exception.NotFoundException;
 import com.daimler.heybeach.backend.exception.RoleException;
 import com.daimler.heybeach.backend.exception.ValidationException;
 import com.daimler.heybeach.backend.service.RoleService;
+import com.daimler.heybeach.data.exception.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +43,9 @@ public class UserDetailsService implements org.springframework.security.core.use
                 String password = user.getPassword();
                 return new LoggedInUser(user.getId(), username, password, auth);
             }
-        } catch (DaoException | RoleException | NotFoundException | ValidationException e) {
+        } catch (EntityNotFoundException | DaoException | RoleException | NotFoundException | ValidationException e) {
             logger.error("Exception occurred while authorizing a user", e);
+            throw new UsernameNotFoundException("Username or password is wrong");
         }
         return null;
     }

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
 import java.util.Date;
 
 @Service
@@ -35,7 +36,10 @@ public class PaymentService {
     @Autowired
     private PaymentDao paymentDao;
 
-    public void makePayment(Long orderId, PaymentDto paymentDto) throws ValidationException, PaymentFailedException, NotFoundException, PaymentException {
+    @Autowired
+    private DataSource dataSource;
+
+    public void makePayment(Long orderId, PaymentDto paymentDto) throws PaymentFailedException, PaymentException {
         try {
             LoggedInUser user = (LoggedInUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Order order = orderDao.findByIdAndUserId(orderId, user.getUserId());
@@ -71,5 +75,4 @@ public class PaymentService {
             throw new NotFoundException("Requested order not found");
         }
     }
-
 }

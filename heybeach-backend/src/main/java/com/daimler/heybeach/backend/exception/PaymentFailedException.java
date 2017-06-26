@@ -1,6 +1,6 @@
 package com.daimler.heybeach.backend.exception;
 
-public class PaymentFailedException extends Exception{
+public class PaymentFailedException extends RuntimeException {
     public PaymentFailedException() {
     }
 

@@ -28,7 +28,7 @@ public class OrderController {
     @PutMapping
     public ResponseEntity<Response> purchase(@RequestBody OrderDto dto) throws NotFoundException, OrderException, ValidationException {
         orderService.purchase(dto);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
 }

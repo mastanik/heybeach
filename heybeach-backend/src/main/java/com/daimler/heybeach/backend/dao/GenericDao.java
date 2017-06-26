@@ -8,6 +8,7 @@ import com.daimler.heybeach.data.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.ParameterizedType;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -47,11 +48,27 @@ public abstract class GenericDao<K, V> {
         }
     }
 
+    public V save(V value, Connection con) throws DaoException, ValidationException {
+        try {
+            return queryExecutor.save(value, con);
+        } catch (SQLException e) {
+            return handleException(e);
+        }
+    }
+
     public V save(V value) throws DaoException, ValidationException {
         try {
             return queryExecutor.save(value);
         } catch (SQLException e) {
             return handleException(e);
+        }
+    }
+
+    public void remove(V value, Connection con) throws DaoException, ValidationException {
+        try {
+            queryExecutor.remove(value, con);
+        } catch (SQLException e) {
+            handleException(e);
         }
     }
 

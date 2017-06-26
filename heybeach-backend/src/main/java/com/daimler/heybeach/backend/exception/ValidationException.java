@@ -1,6 +1,6 @@
 package com.daimler.heybeach.backend.exception;
 
-public class ValidationException extends Exception {
+public class ValidationException extends RuntimeException {
 
     private Integer code;
 

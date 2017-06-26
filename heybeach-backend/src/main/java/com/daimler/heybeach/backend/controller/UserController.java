@@ -32,31 +32,31 @@ public class UserController {
     @GetMapping(value = "/users/{id}")
     public ResponseEntity getUser(@PathVariable(value = "id") Long id) throws NotFoundException, UserException, ValidationException {
         User user = userService.findById(id);
-        return new ResponseEntity<>(new Response<>(true, user), HttpStatus.OK);
+        return new ResponseEntity<>(new Response<>(true, user, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @GetMapping(value = "/users")
     public ResponseEntity getUsers(Principal principal) throws UserException, ValidationException {
         List<User> users = userService.findAll();
-        return new ResponseEntity<>(new Response<>(true, users), HttpStatus.OK);
+        return new ResponseEntity<>(new Response<>(true, users, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @PostMapping(value = "/users/{id}")
     public ResponseEntity update(@PathVariable(value = "id") Long id, @RequestBody UserDto user) throws NotFoundException, UserException, ValidationException {
         userService.update(id, user);
-        return new ResponseEntity<>(new Response<>(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response<>(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @PutMapping(value = "/users")
     public ResponseEntity create(@RequestBody User user) throws UserException, ValidationException {
         userService.create(user);
-        return new ResponseEntity<>(new Response<>(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response<>(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/users/{id}")
     public ResponseEntity remove(@PathVariable(value = "id") Long id) throws NotFoundException, UserException, ValidationException {
         userService.remove(id);
-        return new ResponseEntity<>(new Response<>(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response<>(true, HttpStatus.OK.value()), HttpStatus.OK);
 
     }
 }

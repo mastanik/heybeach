@@ -29,12 +29,12 @@ public class RoleController {
     @PutMapping
     public ResponseEntity<Response> create(@RequestBody Role role) throws RoleException, ValidationException {
         roleService.create(role);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Response> remove(@PathVariable(value = "id") Long id) throws NotFoundException, RoleException, ValidationException {
         roleService.remove(id);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 }

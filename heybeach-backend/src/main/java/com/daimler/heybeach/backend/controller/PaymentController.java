@@ -30,6 +30,6 @@ public class PaymentController {
     @PutMapping(value = "/{orderId}")
     public ResponseEntity<Response> pay(@PathVariable("orderId") Long orderId, @RequestBody PaymentDto paymentDto) throws NotFoundException, OrderException, ValidationException, PaymentException, PaymentFailedException {
         paymentService.makePayment(orderId, paymentDto);
-        return new ResponseEntity<>(new Response(true), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, HttpStatus.OK.value()), HttpStatus.OK);
     }
 }

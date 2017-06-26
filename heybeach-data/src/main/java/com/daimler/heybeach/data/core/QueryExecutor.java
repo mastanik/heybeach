@@ -26,13 +26,12 @@ public class QueryExecutor {
         this.context = context;
     }
 
-    public <T> List<T> findAll(Class<T> entityClass, Condition... conditions) throws SQLException {
+    public <T> List<T> findAll(Class<T> entityClass, Connection con, Condition... conditions) throws SQLException {
 
         String selectAll = context.getEntityQueriesMap().get(entityClass).getSelectAllQuery();
         String queryWithConditions = new QueryBuilder().addConditions(selectAll, conditions);
 
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(queryWithConditions)) {
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryWithConditions)) {
             int index = 1;
             for (Condition condition : conditions) {
                 preparedStatement.setObject(index, condition.getValue());
@@ -47,11 +46,21 @@ public class QueryExecutor {
         }
     }
 
+    public <T> List<T> findAll(Class<T> entityClass, Condition... conditions) throws SQLException {
+        try (Connection con = dataSource.getConnection()) {
+            return findAll(entityClass, con, conditions);
+        }
+    }
 
     public <T> T findById(Object id, Class<T> entityClass) throws SQLException, EntityNotFoundException {
+        try (Connection con = dataSource.getConnection()) {
+            return findById(id, entityClass, con);
+        }
+    }
 
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(context.getEntityQueriesMap().get(entityClass).getSelectByIdQuery())) {
+    public <T> T findById(Object id, Class<T> entityClass, Connection con) throws SQLException, EntityNotFoundException {
+
+        try (PreparedStatement preparedStatement = con.prepareStatement(context.getEntityQueriesMap().get(entityClass).getSelectByIdQuery())) {
             EntityDescription description = context.getEntityDescriptionMap().get(entityClass);
 
             List<EntityDescription.IdField> idFields = description.getPk();
@@ -79,8 +88,13 @@ public class QueryExecutor {
     }
 
     public <T> List<T> findAll(Class<T> entityClass) throws SQLException {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(context.getEntityQueriesMap().get(entityClass).getSelectAllQuery())) {
+        try (Connection con = dataSource.getConnection()) {
+            return findAll(entityClass, con);
+        }
+    }
+
+    public <T> List<T> findAll(Class<T> entityClass, Connection con) throws SQLException {
+        try (PreparedStatement preparedStatement = con.prepareStatement(context.getEntityQueriesMap().get(entityClass).getSelectAllQuery())) {
             ResultSet rs = preparedStatement.executeQuery();
             EntityDescription description = context.getEntityDescriptionMap().get(entityClass);
             List<T> result = new SimpleMapper<>(entityClass, description.getFieldMapping()).map(rs);
@@ -90,27 +104,32 @@ public class QueryExecutor {
         }
     }
 
-    public <T> T save(T entity) throws SQLException {
+    public <T> T save(T entity, Connection con) throws SQLException {
         try {
             EntityDescription description = context.getEntityDescriptionMap().get(entity.getClass());
             if (description.getPk().size() == 1) {
                 Field idField = description.getFieldMapping().get(description.getIdFields().keySet().iterator().next());
                 if (idField.get(entity) != null) {
-                    return update(entity);
+                    return update(entity, con);
                 }
             }
-            return create(entity);
+            return create(entity, con);
         } catch (IllegalAccessException e) {
             throw new PersistenceException(e.getMessage(), e);
         }
     }
 
-    private <T> T create(T entity) throws SQLException {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(
-                     context.getEntityQueriesMap().get(entity.getClass()).getCreateQuery(),
-                     Statement.RETURN_GENERATED_KEYS
-             )) {
+    public <T> T save(T entity) throws SQLException {
+        try (Connection con = dataSource.getConnection()) {
+            return save(entity, con);
+        }
+    }
+
+    private <T> T create(T entity, Connection con) throws SQLException {
+        try (PreparedStatement preparedStatement = con.prepareStatement(
+                context.getEntityQueriesMap().get(entity.getClass()).getCreateQuery(),
+                Statement.RETURN_GENERATED_KEYS
+        )) {
             EntityDescription description = context.getEntityDescriptionMap().get(entity.getClass());
             Map<String, Field> mapping = description.getFieldMapping();
             int index = 1;
@@ -156,11 +175,10 @@ public class QueryExecutor {
         }
     }
 
-    private <T> T update(T entity) throws SQLException {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(
-                     context.getEntityQueriesMap().get(entity.getClass()).getUpdateQuery()
-             )) {
+    private <T> T update(T entity, Connection con) throws SQLException {
+        try (PreparedStatement preparedStatement = con.prepareStatement(
+                context.getEntityQueriesMap().get(entity.getClass()).getUpdateQuery()
+        )) {
             EntityDescription description = context.getEntityDescriptionMap().get(entity.getClass());
             Map<String, Field> mapping = description.getFieldMapping();
             int index = 1;
@@ -188,8 +206,13 @@ public class QueryExecutor {
     }
 
     public <T> void remove(T entity) throws SQLException {
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(context.getEntityQueriesMap().get(entity.getClass()).getRemoveQuery())) {
+        try (Connection con = dataSource.getConnection()) {
+            remove(entity, con);
+        }
+    }
+
+    public <T> void remove(T entity, Connection con) throws SQLException {
+        try (PreparedStatement preparedStatement = con.prepareStatement(context.getEntityQueriesMap().get(entity.getClass()).getRemoveQuery())) {
             EntityDescription description = context.getEntityDescriptionMap().get(entity.getClass());
 
             int index = 1;
@@ -206,10 +229,15 @@ public class QueryExecutor {
     }
 
     public Long count(Class entityClass, Condition... conditions) throws SQLException {
+        try (Connection con = dataSource.getConnection()) {
+            return count(entityClass, con, conditions);
+        }
+    }
+
+    public Long count(Class entityClass, Connection con, Condition... conditions) throws SQLException {
         String countQuery = context.getEntityQueriesMap().get(entityClass).getCountQuery();
         String queryWithConditions = new QueryBuilder().addConditions(countQuery, conditions);
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(queryWithConditions)) {
+        try (PreparedStatement preparedStatement = con.prepareStatement(queryWithConditions)) {
 
             int index = 1;
             for (Condition condition : conditions) {
@@ -229,9 +257,14 @@ public class QueryExecutor {
     }
 
     public Long count(Class entityClass) throws SQLException {
+        try (Connection con = dataSource.getConnection()) {
+            return count(entityClass, con);
+        }
+    }
+
+    public Long count(Class entityClass, Connection con) throws SQLException {
         String countQuery = context.getEntityQueriesMap().get(entityClass).getCountQuery();
-        try (Connection con = dataSource.getConnection();
-             PreparedStatement preparedStatement = con.prepareStatement(countQuery)) {
+        try (PreparedStatement preparedStatement = con.prepareStatement(countQuery)) {
 
             ResultSet rs = preparedStatement.executeQuery();
             List<Long> count = new RowMapper<Long>() {

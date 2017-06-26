@@ -25,6 +25,6 @@ public class HashtagController {
     @PostMapping(value = "/autocompletion/{term}")
     public ResponseEntity<Response> autocomplete(@PathVariable(value = "term") String term) {
         List<String> suggestions = hashtagService.suggest(term);
-        return new ResponseEntity<>(new Response(true, suggestions), HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, suggestions, HttpStatus.OK.value()), HttpStatus.OK);
     }
 }

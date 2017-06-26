@@ -17,14 +17,14 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {NotFoundException.class})
-    protected ResponseEntity<Object> handleNotFound(Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, new Response(false, ex.getMessage()),
+    protected ResponseEntity<Object> handleNotFound(NotFoundException ex, WebRequest request) {
+        return handleExceptionInternal(ex, new Response(false, ex.getMessage(), HttpStatus.NOT_FOUND.value()),
                 new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
     @ExceptionHandler(value = {ServiceException.class})
-    protected ResponseEntity<Object> handleService(Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, new Response(false, "Internal error occured"),
+    protected ResponseEntity<Object> handleService(ServiceException ex, WebRequest request) {
+        return handleExceptionInternal(ex, new Response(false, "Internal error occured", HttpStatus.INTERNAL_SERVER_ERROR.value()),
                 new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
@@ -34,13 +34,13 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         if (ex.getCode() != null && ex.getCode() != 0) {
             status = HttpStatus.CONFLICT;
         }
-        return handleExceptionInternal(ex, new Response(false, ex.getMessage()),
+        return handleExceptionInternal(ex, new Response(false, ex.getMessage(), status.value()),
                 new HttpHeaders(), status, request);
     }
 
     @ExceptionHandler(value = {PaymentFailedException.class})
-    protected ResponseEntity<Object> handlePayment(Exception ex, WebRequest request) {
-        return handleExceptionInternal(ex, new Response(false, ex.getMessage()),
+    protected ResponseEntity<Object> handlePayment(PaymentFailedException ex, WebRequest request) {
+        return handleExceptionInternal(ex, new Response(false, ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY.value()),
                 new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY, request);
     }
 }
