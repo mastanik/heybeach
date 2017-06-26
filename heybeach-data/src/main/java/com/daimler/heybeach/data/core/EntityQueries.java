@@ -6,13 +6,15 @@ final class EntityQueries {
     private String createQuery;
     private String updateQuery;
     private String removeQuery;
+    private String countQuery;
 
-    private EntityQueries(String selectAllQuery, String selectByIdQuery, String createQuery, String updateQuery, String removeQuery) {
+    private EntityQueries(String selectAllQuery, String selectByIdQuery, String createQuery, String updateQuery, String removeQuery, String countQuery) {
         this.selectAllQuery = selectAllQuery;
         this.selectByIdQuery = selectByIdQuery;
         this.createQuery = createQuery;
         this.updateQuery = updateQuery;
         this.removeQuery = removeQuery;
+        this.countQuery = countQuery;
     }
 
     public String getSelectAllQuery() {
@@ -35,12 +37,17 @@ final class EntityQueries {
         return removeQuery;
     }
 
+    public String getCountQuery() {
+        return countQuery;
+    }
+
     static class EntityQueriesBuilder {
         private String selectAllQuery;
         private String selectByIdQuery;
         private String createQuery;
         private String updateQuery;
         private String removeQuery;
+        private String countQuery;
 
         EntityQueriesBuilder selectAllQuery(String query) {
             this.selectAllQuery = query;
@@ -67,8 +74,13 @@ final class EntityQueries {
             return this;
         }
 
+        EntityQueriesBuilder countQuery(String query) {
+            this.countQuery = query;
+            return this;
+        }
+
         EntityQueries build() {
-            EntityQueries queries = new EntityQueries(selectAllQuery, selectByIdQuery, createQuery, updateQuery, removeQuery);
+            EntityQueries queries = new EntityQueries(selectAllQuery, selectByIdQuery, createQuery, updateQuery, removeQuery, countQuery);
             return queries;
         }
     }

@@ -5,6 +5,7 @@ import com.daimler.heybeach.backend.entities.User;
 import com.daimler.heybeach.backend.exception.RegistrationException;
 import com.daimler.heybeach.backend.exception.RoleException;
 import com.daimler.heybeach.backend.exception.UserException;
+import com.daimler.heybeach.backend.exception.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,7 @@ public class RegistrationService {
     @Autowired
     private RoleService roleService;
 
-    public void register(RegistrationDto dto) throws RegistrationException {
+    public void register(RegistrationDto dto) throws RegistrationException, ValidationException {
         try {
             User user = new User();
             user.setEmail(dto.getEmail());

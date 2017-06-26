@@ -27,6 +27,8 @@ class QueryBuilder {
     public static final String CLOSE_PARENTHESIS = ")";
     public static final String QUOTE = "'";
 
+    public static final String COUNT = "SELECT COUNT(1) AS COUNT FROM ";
+
     String buildSelectAll(EntityDescription entityDescription) {
         StringBuilder sb = new StringBuilder();
         Map<String, Field> mapping = entityDescription.getFieldMapping();
@@ -132,6 +134,12 @@ class QueryBuilder {
         return sb.toString();
     }
 
+    String buildCount(EntityDescription entityDescription) {
+        StringBuilder sb = new StringBuilder(COUNT)
+                .append(entityDescription.getTable());
+        return sb.toString();
+    }
+
     private void addWhereById(StringBuilder sb, EntityDescription entityDescription) {
         List<EntityDescription.IdField> idFields = entityDescription.getPk();
         int index = 1;
@@ -171,8 +179,9 @@ class QueryBuilder {
                     .append(EMPTY)
                     .append(PARAM);
             if (index < length) {
-                sb.append(COMMA_WITH_SPACE);
+                sb.append(EMPTY);
             }
+            index++;
         }
         return sb.toString();
     }

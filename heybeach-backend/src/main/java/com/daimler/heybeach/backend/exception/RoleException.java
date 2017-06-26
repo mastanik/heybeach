@@ -1,6 +1,6 @@
 package com.daimler.heybeach.backend.exception;
 
-public class RoleException extends Exception {
+public class RoleException extends ServiceException {
     public RoleException() {
     }
 

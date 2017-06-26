@@ -1,7 +1,6 @@
 package com.daimler.heybeach.backend.exception;
 
-public class PictureException extends Exception {
-
+public class PictureException extends ServiceException {
     public PictureException() {
     }
 

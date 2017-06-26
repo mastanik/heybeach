@@ -4,6 +4,8 @@ import com.daimler.heybeach.data.types.Entity;
 import com.daimler.heybeach.data.types.Field;
 import com.daimler.heybeach.data.types.Id;
 
+import java.math.BigDecimal;
+
 @Entity(table = "pictures")
 public class Picture {
     @Id(generated = true)
@@ -15,8 +17,9 @@ public class Picture {
     private Long timestamp;
     @Field(column = "picture_status")
     private Long pictureStatus;
-    @Field(column = "approved_by")
-    private Long approvedBy;
+    private String title;
+    private String description;
+    private BigDecimal price;
 
     public Long getId() {
         return id;
@@ -58,11 +61,27 @@ public class Picture {
         this.pictureStatus = pictureStatus;
     }
 
-    public Long getApprovedBy() {
-        return approvedBy;
+    public String getTitle() {
+        return title;
     }
 
-    public void setApprovedBy(Long approvedBy) {
-        this.approvedBy = approvedBy;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 }

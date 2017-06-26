@@ -2,6 +2,7 @@ package com.daimler.heybeach.backend.dao;
 
 import com.daimler.heybeach.backend.entities.Role;
 import com.daimler.heybeach.backend.exception.DaoException;
+import com.daimler.heybeach.backend.exception.ValidationException;
 import com.daimler.heybeach.data.core.Condition;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +11,7 @@ import java.util.List;
 @Repository
 public class RoleDao extends GenericDao<Long, Role> {
 
-    public Role findByName(String name) throws DaoException {
+    public Role findByName(String name) throws DaoException, ValidationException {
         Condition.ConditionBuilder builder = new Condition.ConditionBuilder();
         builder.fieldName("name")
                 .comparator(Condition.EQ())
@@ -18,7 +19,7 @@ public class RoleDao extends GenericDao<Long, Role> {
         return findAllWith(builder.build()).iterator().next();
     }
 
-    public List<Role> findHierarchy(Integer priority) throws DaoException {
+    public List<Role> findHierarchy(Integer priority) throws DaoException, ValidationException {
         Condition.ConditionBuilder builder = new Condition.ConditionBuilder();
         builder.fieldName("priority")
                 .comparator(Condition.LT())

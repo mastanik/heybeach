@@ -6,8 +6,11 @@ import com.daimler.heybeach.backend.entities.Role;
 import com.daimler.heybeach.backend.entities.User;
 import com.daimler.heybeach.backend.entities.UserRole;
 import com.daimler.heybeach.backend.exception.DaoException;
+import com.daimler.heybeach.backend.exception.NotFoundException;
 import com.daimler.heybeach.backend.exception.RoleException;
+import com.daimler.heybeach.backend.exception.ValidationException;
 import com.daimler.heybeach.data.core.Condition;
+import com.daimler.heybeach.data.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +26,7 @@ public class RoleService {
     @Autowired
     private UserRoleDao userRoleDao;
 
-    public void create(Role role) throws RoleException {
+    public void create(Role role) throws RoleException, ValidationException {
         try {
             roleDao.save(role);
             role.setName(role.getName());
@@ -32,7 +35,7 @@ public class RoleService {
         }
     }
 
-    public void remove(Long id) throws RoleException {
+    public void remove(Long id) throws RoleException, NotFoundException, ValidationException {
         try {
             Role role = roleDao.findById(id);
             List<UserRole> userRoles = userRoleDao.findAllWith(new Condition.ConditionBuilder()
@@ -45,10 +48,12 @@ public class RoleService {
             roleDao.remove(role);
         } catch (DaoException e) {
             throw new RoleException(e.getMessage(), e);
+        } catch (EntityNotFoundException e) {
+            throw new NotFoundException("Requested role not found");
         }
     }
 
-    public void grantRoles(User user, String roleName) throws RoleException {
+    public void grantRoles(User user, String roleName) throws RoleException, ValidationException {
         try {
             Role role = roleDao.findByName(roleName.toUpperCase());
             UserRole userRole = new UserRole();
@@ -60,7 +65,7 @@ public class RoleService {
         }
     }
 
-    public void grantRoleHierarchy(User user, String roleName) throws RoleException {
+    public void grantRoleHierarchy(User user, String roleName) throws RoleException, ValidationException {
         try {
             Role role = roleDao.findByName(roleName.toUpperCase());
             List<Role> roles = roleDao.findHierarchy(role.getPriority());
@@ -77,7 +82,7 @@ public class RoleService {
         }
     }
 
-    public List<Role> getRoles(User user) throws RoleException {
+    public List<Role> getRoles(User user) throws RoleException, NotFoundException, ValidationException {
         try {
             List<UserRole> userRoles = userRoleDao.findAllWith(new Condition.ConditionBuilder()
                     .fieldName("user_id")
@@ -90,6 +95,8 @@ public class RoleService {
             return roles;
         } catch (DaoException e) {
             throw new RoleException(e.getMessage(), e);
+        } catch (EntityNotFoundException e) {
+            throw new NotFoundException("Requested role not found");
         }
     }
 

@@ -4,6 +4,7 @@ import com.daimler.heybeach.backend.autocomplete.PrefixTree;
 import com.daimler.heybeach.backend.dao.HashtagDao;
 import com.daimler.heybeach.backend.entities.Hashtag;
 import com.daimler.heybeach.backend.exception.DaoException;
+import com.daimler.heybeach.backend.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class HashtagService {
     }
 
     @PostConstruct
-    public void run() {
+    public void run() throws ValidationException {
         hashtagTree = new PrefixTree();
         try {
             List<Hashtag> hashtags = hashtagDao.findAll();

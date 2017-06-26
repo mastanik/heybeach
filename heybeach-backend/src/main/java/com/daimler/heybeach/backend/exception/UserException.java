@@ -1,6 +1,6 @@
 package com.daimler.heybeach.backend.exception;
 
-public class UserException extends Exception {
+public class UserException extends ServiceException {
     public UserException() {
     }
 

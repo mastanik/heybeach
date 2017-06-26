@@ -47,7 +47,8 @@ public class PersistenceConfig {
                     .selectByIdQuery(queryBuilder.buildSelectById(description))
                     .createQuery(queryBuilder.buildCreate(description))
                     .updateQuery(queryBuilder.buildUpdate(description))
-                    .removeQuery(queryBuilder.buildRemove(description));
+                    .removeQuery(queryBuilder.buildRemove(description))
+                    .countQuery(queryBuilder.buildCount(description));
 
             entityQueriesMap.put(clazz, builder.build());
         }

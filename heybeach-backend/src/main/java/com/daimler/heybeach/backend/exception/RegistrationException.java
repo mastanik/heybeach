@@ -1,7 +1,6 @@
 package com.daimler.heybeach.backend.exception;
 
-public class RegistrationException extends Exception {
-
+public class RegistrationException extends ServiceException {
     public RegistrationException() {
     }
 

@@ -1,6 +1,7 @@
 package com.daimler.heybeach.backend.dao;
 
 import com.daimler.heybeach.backend.exception.DaoException;
+import com.daimler.heybeach.backend.exception.ValidationException;
 import com.daimler.heybeach.data.core.Condition;
 import com.daimler.heybeach.data.core.QueryExecutor;
 import com.daimler.heybeach.data.exception.EntityNotFoundException;
@@ -22,46 +23,68 @@ public abstract class GenericDao<K, V> {
                 .getGenericSuperclass()).getActualTypeArguments()[1];
     }
 
-    public List<V> findAllWith(Condition... conditions) throws DaoException {
+    public List<V> findAllWith(Condition... conditions) throws DaoException, ValidationException {
         try {
             return queryExecutor.findAll(entityClass, conditions);
         } catch (SQLException e) {
-            throw new DaoException(e);
+            return handleException(e);
         }
     }
 
-    public List<V> findAll() throws DaoException {
+    public List<V> findAll() throws DaoException, ValidationException {
         try {
             return queryExecutor.findAll(entityClass);
         } catch (SQLException e) {
-            throw new DaoException(e);
+            return handleException(e);
         }
     }
 
-    public V findById(K key) throws DaoException {
+    public V findById(K key) throws DaoException, EntityNotFoundException, ValidationException {
         try {
             return queryExecutor.findById(key, entityClass);
         } catch (SQLException e) {
-            throw new DaoException(e);
-        } catch (EntityNotFoundException e) {
-            return null;
+            return handleException(e);
         }
     }
 
-    public V save(V value) throws DaoException {
+    public V save(V value) throws DaoException, ValidationException {
         try {
             return queryExecutor.save(value);
         } catch (SQLException e) {
-            throw new DaoException(e);
+            return handleException(e);
         }
     }
 
-    public void remove(V value) throws DaoException {
+    public void remove(V value) throws DaoException, ValidationException {
         try {
             queryExecutor.remove(value);
         } catch (SQLException e) {
-            throw new DaoException(e);
+            handleException(e);
         }
     }
 
+    public Long count() throws DaoException, ValidationException {
+        try {
+            return queryExecutor.count(entityClass);
+        } catch (SQLException e) {
+            return handleException(e);
+        }
+    }
+
+    public Long count(Condition... conditions) throws DaoException, ValidationException {
+        try {
+            return queryExecutor.count(entityClass, conditions);
+        } catch (SQLException e) {
+            return handleException(e);
+        }
+    }
+
+    private <V> V handleException(SQLException e) throws DaoException, ValidationException {
+        if (e.getErrorCode() != 0) {
+            if (e.getErrorCode() == 1062) {
+                throw new ValidationException("Already exists", e, e.getErrorCode());
+            }
+        }
+        throw new DaoException(e);
+    }
 }

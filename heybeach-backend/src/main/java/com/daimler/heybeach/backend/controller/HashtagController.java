@@ -4,6 +4,7 @@ import com.daimler.heybeach.backend.dto.Response;
 import com.daimler.heybeach.backend.service.HashtagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +24,7 @@ public class HashtagController {
     @Secured(value = "ROLE_PSU")
     @PostMapping(value = "/autocompletion/{term}")
     public ResponseEntity<Response> autocomplete(@PathVariable(value = "term") String term) {
-        Response<List<String>> response = new Response();
         List<String> suggestions = hashtagService.suggest(term);
-        response.setSuccess(true);
-        response.setData(suggestions);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(new Response(true, suggestions), HttpStatus.OK);
     }
 }

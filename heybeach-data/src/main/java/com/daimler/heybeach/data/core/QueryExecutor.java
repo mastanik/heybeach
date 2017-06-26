@@ -2,6 +2,7 @@ package com.daimler.heybeach.data.core;
 
 import com.daimler.heybeach.data.exception.EntityNotFoundException;
 import com.daimler.heybeach.data.exception.PersistenceException;
+import com.google.common.collect.Lists;
 
 import javax.sql.DataSource;
 import java.lang.reflect.Field;
@@ -201,6 +202,45 @@ public class QueryExecutor {
             preparedStatement.executeUpdate();
         } catch (IllegalAccessException e) {
             throw new PersistenceException(e.getMessage(), e);
+        }
+    }
+
+    public Long count(Class entityClass, Condition... conditions) throws SQLException {
+        String countQuery = context.getEntityQueriesMap().get(entityClass).getCountQuery();
+        String queryWithConditions = new QueryBuilder().addConditions(countQuery, conditions);
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement preparedStatement = con.prepareStatement(queryWithConditions)) {
+
+            int index = 1;
+            for (Condition condition : conditions) {
+                preparedStatement.setObject(index, condition.getValue());
+                index++;
+            }
+            ResultSet rs = preparedStatement.executeQuery();
+            List<Long> count = new RowMapper<Long>() {
+                @Override
+                public List<Long> map(ResultSet rs) throws SQLException {
+                    rs.next();
+                    return Lists.newArrayList(rs.getLong("COUNT"));
+                }
+            }.map(rs);
+            return count.iterator().next();
+        }
+    }
+
+    public Long count(Class entityClass) throws SQLException {
+        String countQuery = context.getEntityQueriesMap().get(entityClass).getCountQuery();
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement preparedStatement = con.prepareStatement(countQuery)) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+            List<Long> count = new RowMapper<Long>() {
+                @Override
+                public List<Long> map(ResultSet rs) throws SQLException {
+                    return Lists.newArrayList(rs.getLong("COUNT"));
+                }
+            }.map(rs);
+            return count.iterator().next();
         }
     }
 

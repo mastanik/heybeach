@@ -3,7 +3,9 @@ package com.daimler.heybeach.backend.controller;
 import com.daimler.heybeach.backend.dto.Response;
 import com.daimler.heybeach.backend.dto.UserDto;
 import com.daimler.heybeach.backend.entities.User;
+import com.daimler.heybeach.backend.exception.NotFoundException;
 import com.daimler.heybeach.backend.exception.UserException;
+import com.daimler.heybeach.backend.exception.ValidationException;
 import com.daimler.heybeach.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,65 +30,33 @@ public class UserController {
     private UserService userService;
 
     @GetMapping(value = "/users/{id}")
-    public ResponseEntity getUser(@PathVariable(value = "id") Long id) {
-        User user;
-        Response<User> response;
-        try {
-            user = userService.findById(id);
-            response = new Response<>(true, user);
-
-        } catch (UserException e) {
-            response = new Response<>(false, e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity getUser(@PathVariable(value = "id") Long id) throws NotFoundException, UserException, ValidationException {
+        User user = userService.findById(id);
+        return new ResponseEntity<>(new Response<>(true, user), HttpStatus.OK);
     }
 
     @GetMapping(value = "/users")
-    public ResponseEntity getUsers(Principal principal) {
-        List<User> users;
-        Response<List<User>> response;
-        try {
-            users = userService.findAll();
-            response = new Response<>(true, users);
-        } catch (UserException e) {
-            response = new Response<>(false, e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity getUsers(Principal principal) throws UserException, ValidationException {
+        List<User> users = userService.findAll();
+        return new ResponseEntity<>(new Response<>(true, users), HttpStatus.OK);
     }
 
     @PostMapping(value = "/users/{id}")
-    public ResponseEntity update(@PathVariable(value = "id") Long id, @RequestBody UserDto user) {
-        Response response;
-        try {
-            userService.update(id, user);
-            response = new Response(true);
-        } catch (UserException e) {
-            response = new Response(false, e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity update(@PathVariable(value = "id") Long id, @RequestBody UserDto user) throws NotFoundException, UserException, ValidationException {
+        userService.update(id, user);
+        return new ResponseEntity<>(new Response<>(true), HttpStatus.OK);
     }
 
     @PutMapping(value = "/users")
-    public ResponseEntity create(@RequestBody User user) {
-        Response response;
-        try {
-            userService.create(user);
-            response = new Response(true);
-        } catch (UserException e) {
-            response = new Response(false, e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity create(@RequestBody User user) throws UserException, ValidationException {
+        userService.create(user);
+        return new ResponseEntity<>(new Response<>(true), HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/users/{id}")
-    public ResponseEntity remove(@PathVariable(value = "id") Long id) {
-        Response response;
-        try {
-            userService.remove(id);
-            response = new Response(true);
-        } catch (UserException e) {
-            response = new Response(false, e.getMessage());
-        }
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity remove(@PathVariable(value = "id") Long id) throws NotFoundException, UserException, ValidationException {
+        userService.remove(id);
+        return new ResponseEntity<>(new Response<>(true), HttpStatus.OK);
+
     }
 }

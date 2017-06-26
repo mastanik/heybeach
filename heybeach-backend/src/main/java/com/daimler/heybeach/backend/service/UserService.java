@@ -6,8 +6,11 @@ import com.daimler.heybeach.backend.dto.UserDto;
 import com.daimler.heybeach.backend.entities.User;
 import com.daimler.heybeach.backend.entities.UserRole;
 import com.daimler.heybeach.backend.exception.DaoException;
+import com.daimler.heybeach.backend.exception.NotFoundException;
 import com.daimler.heybeach.backend.exception.UserException;
+import com.daimler.heybeach.backend.exception.ValidationException;
 import com.daimler.heybeach.data.core.Condition;
+import com.daimler.heybeach.data.exception.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,15 +29,17 @@ public class UserService {
     @Autowired
     private UserRoleDao userRoleDao;
 
-    public User findById(Long id) throws UserException {
+    public User findById(Long id) throws UserException, NotFoundException, ValidationException {
         try {
             return userDao.findById(id);
         } catch (DaoException e) {
             throw new UserException(e.getMessage(), e);
+        } catch (EntityNotFoundException e) {
+            throw new NotFoundException("Requested user not found");
         }
     }
 
-    public List<User> findAll() throws UserException {
+    public List<User> findAll() throws UserException, ValidationException {
         try {
             return userDao.findAll();
         } catch (DaoException e) {
@@ -42,7 +47,7 @@ public class UserService {
         }
     }
 
-    public void create(User user) throws UserException {
+    public void create(User user) throws UserException, ValidationException {
         try {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
             userDao.save(user);
@@ -51,7 +56,7 @@ public class UserService {
         }
     }
 
-    public void update(Long id, UserDto userDto) throws UserException {
+    public void update(Long id, UserDto userDto) throws UserException, NotFoundException, ValidationException {
         try {
             User user = userDao.findById(id);
             user.setEmail(userDto.getEmail());
@@ -62,10 +67,12 @@ public class UserService {
             userDao.save(user);
         } catch (DaoException e) {
             throw new UserException(e.getMessage(), e);
+        } catch (EntityNotFoundException e) {
+            throw new NotFoundException("Requested user not found");
         }
     }
 
-    public void remove(Long id) throws UserException {
+    public void remove(Long id) throws UserException, NotFoundException, ValidationException {
         try {
             User user = userDao.findById(id);
             List<UserRole> userRoles = userRoleDao.findAllWith(new Condition.ConditionBuilder()
@@ -79,6 +86,8 @@ public class UserService {
             userDao.remove(user);
         } catch (DaoException e) {
             throw new UserException(e.getMessage(), e);
+        } catch (EntityNotFoundException e) {
+            throw new NotFoundException("Requested user not found");
         }
     }
 }

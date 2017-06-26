@@ -4,7 +4,9 @@ import com.daimler.heybeach.backend.dao.UserDao;
 import com.daimler.heybeach.backend.entities.Role;
 import com.daimler.heybeach.backend.entities.User;
 import com.daimler.heybeach.backend.exception.DaoException;
+import com.daimler.heybeach.backend.exception.NotFoundException;
 import com.daimler.heybeach.backend.exception.RoleException;
+import com.daimler.heybeach.backend.exception.ValidationException;
 import com.daimler.heybeach.backend.service.RoleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +42,7 @@ public class UserDetailsService implements org.springframework.security.core.use
                 String password = user.getPassword();
                 return new LoggedInUser(user.getId(), username, password, auth);
             }
-        } catch (DaoException | RoleException e) {
+        } catch (DaoException | RoleException | NotFoundException | ValidationException e) {
             logger.error("Exception occurred while authorizing a user", e);
         }
         return null;
