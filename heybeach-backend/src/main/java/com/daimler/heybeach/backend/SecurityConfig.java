@@ -36,6 +36,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private AuthenticationSuccessHandler authenticationSuccessHandler;
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public AuthenticationSuccessHandler mySuccessHandler() {
         return new AuthenticationSuccessHandler();
     }
@@ -45,14 +50,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new SimpleUrlAuthenticationFailureHandler();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Autowired
-    public void configAuthentication(AuthenticationManagerBuilder auth, PasswordEncoder passwordEncoder) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+    public void configAuthentication(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
     }
 
     @Override
